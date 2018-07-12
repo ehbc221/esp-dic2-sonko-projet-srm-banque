@@ -6,6 +6,7 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 import javax.swing.*;
+import javax.swing.JOptionPane;
 
 import entities.*;
 
@@ -79,6 +80,7 @@ public class CreerClient extends JFrame implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == bAjouter) {
 			Client client;
+			String message = new String();
 			try {
 				oos.writeObject("creerClient");
 				oos.flush();
@@ -90,8 +92,11 @@ public class CreerClient extends JFrame implements ActionListener {
 				client.setNumeroAgence(recupererNumeroAgence(nomAgence));
 				oos.writeObject(client);
 				oos.flush();
+				message = ois.readObject().toString();
+				JOptionPane.showMessageDialog(null, message.equals("succes") ? "Client créé avec succès!" : "Echec de la création du client!");
 				chNom.setText("");
 				chPrenom.setText("");
+				chListeAgences.setSelectedIndex(0);
 			}
 			catch(Exception ex) {
 				System.out.println(ex.getMessage());

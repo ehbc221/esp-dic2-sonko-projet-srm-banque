@@ -26,18 +26,24 @@ public class ListerComptesClient extends JFrame implements ActionListener {
 		table = new JTable();
 		sc.setViewportView(table);
 		DefaultTableModel modele = (DefaultTableModel)table.getModel();
+		modele.addColumn("Numéro Client");
 		modele.addColumn("Numero Compte");
 		modele.addColumn("Libelle Compte");
 		modele.addColumn("Solde Compte");
 		modele.addColumn("Sens Compte");
 
 		int ligne=0;
+		if(listeComptes.isEmpty()) {
+			modele.addRow(new Object[0]);
+			modele.setValueAt("Ce client n'a pas de comptes", ligne, 0);
+		}
 		for (Compte compte : listeComptes) {
 			modele.addRow( new Object[0]);
 			modele.setValueAt(String.valueOf(compte.getNumeroClient()), ligne, 0);
-			modele.setValueAt(compte.getLibelle(), ligne, 1);
-			modele.setValueAt(String.valueOf(compte.getSolde()), ligne, 2);
-			modele.setValueAt(compte.getSens(), ligne, 3);
+			modele.setValueAt(String.valueOf(compte.getNumero()), ligne, 1);
+			modele.setValueAt(compte.getLibelle(), ligne, 2);
+			modele.setValueAt(String.valueOf(compte.getSolde()), ligne, 3);
+			modele.setValueAt((compte.getSens().equals("CR") ? "Créditeur" : "Débiteur"), ligne, 4);
 			ligne++;
 		}
 
@@ -50,8 +56,8 @@ public class ListerComptesClient extends JFrame implements ActionListener {
 		add(panel2,BorderLayout.SOUTH);
 
 		setTitle("Lister Comptes Clients");
-		setSize(550, 500);
-		setResizable(false);
+		setSize(700, 500);
+		setResizable(true);
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setVisible(true);

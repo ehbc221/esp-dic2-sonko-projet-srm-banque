@@ -6,6 +6,7 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 import javax.swing.*;
+import javax.swing.JOptionPane;
 
 import entities.*;
 
@@ -68,9 +69,9 @@ public class CreerAgence extends JFrame implements ActionListener {
 	}
 
 	public void actionPerformed(ActionEvent e) {
-
 		if (e.getSource() == bAjouter) {
 			Agence agence;
+			String message = new String();
 			try {
 				oos.writeObject("creerAgence");
 				oos.flush();
@@ -81,6 +82,8 @@ public class CreerAgence extends JFrame implements ActionListener {
 				agence.setAdresse(adresse);
 				oos.writeObject(agence);
 				oos.flush();
+				message = ois.readObject().toString();
+				JOptionPane.showMessageDialog(null, message.equals("succes") ? "Agence créée avec succès!" : "Echec de la création de l'agence!");
 				chNom.setText("");
 				chAdresse.setText("");
 			}

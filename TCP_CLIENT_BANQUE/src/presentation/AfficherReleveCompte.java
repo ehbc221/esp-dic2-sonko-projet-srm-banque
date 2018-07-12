@@ -26,22 +26,22 @@ public class AfficherReleveCompte extends JFrame implements ActionListener {
 		table = new JTable();
 		sc.setViewportView(table);
 		DefaultTableModel modele = (DefaultTableModel)table.getModel();
+		modele.addColumn("Numero Compte");
 		modele.addColumn("Numero Operation");
 		modele.addColumn("Libelle Operation");
 		modele.addColumn("Date Operation");
 		modele.addColumn("Montant Operation");
 		modele.addColumn("Sens Operation");
-		modele.addColumn("Numero Compte");
 
 		int ligne=0;
 		for (Operation operation : listeOperations) {
 			modele.addRow( new Object[0]);
-			modele.setValueAt(String.valueOf(operation.getNumero()), ligne, 0);
-			modele.setValueAt(operation.getLibelle(), ligne, 1);
-			modele.setValueAt(operation.getDateOperation(), ligne, 2);
-			modele.setValueAt(String.valueOf(operation.getMontant()), ligne, 3);
-			modele.setValueAt(operation.getSens(), ligne, 4);
-			modele.setValueAt(String.valueOf(operation.getNumeroCompte()), ligne, 5);
+			modele.setValueAt(String.valueOf(operation.getNumeroCompte()), ligne, 0);
+			modele.setValueAt(String.valueOf(operation.getNumero()), ligne, 1);
+			modele.setValueAt(operation.getLibelle(), ligne, 2);
+			modele.setValueAt(operation.getDateOperation(), ligne, 3);
+			modele.setValueAt(String.valueOf(operation.getMontant()), ligne, 4);
+			modele.setValueAt((operation.getSens().equals("CR") ? "Crédit" : "Débit"), ligne, 5);
 			ligne++;
 		}
 
@@ -55,7 +55,7 @@ public class AfficherReleveCompte extends JFrame implements ActionListener {
 
 		setTitle("Afficher Releve Compte");
 		setSize(550, 500);
-		setResizable(false);
+		setResizable(true);
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setVisible(true);

@@ -10,9 +10,10 @@ public class AccesBD {
 	private Connection con = null;
 	private PreparedStatement st = null;
 	private ResultSet rs = null;
+	private final String host = "jdbc:mysql://localhost:3306/banque_tcp", username = "phpmyadmin", password = "phpmyadmin", sensDefaut="CR";
+	private final double soldeDefaut = 0;
 	
 	public AccesBD() {
-		final String host = "jdbc:mysql://localhost:3306/banque_tcp", username = "phpmyadmin", password = "phpmyadmin";
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 			con = DriverManager.getConnection(host, username, password);
@@ -21,7 +22,8 @@ public class AccesBD {
 		}
 	}
 
-	public void creerAgence(Agence agence) {
+	public String creerAgence(Agence agence) {
+		String message = new String("succes");
 		try {
 			st = con.prepareStatement("insert into agence(nom, adresse) values(?, ?)");
 			st.setString(1, agence.getNom());
@@ -30,7 +32,9 @@ public class AccesBD {
 		}
 		catch(Exception ex) {
 			System.out.println(ex.getMessage());
+			message = new String("echec");
 		}
+		return message;
 	}
 
 	 public ArrayList<Agence> listerAgences() {
@@ -52,7 +56,8 @@ public class AccesBD {
 		return listeAgences;
 	}
 
-	public void creerClient(Client client) {
+	public String creerClient(Client client) {
+		String message = new String("succes");
 		try {
 			st= con.prepareStatement("insert into client(nom, prenom, numero_agence) values(?, ?, ?)");
 			st.setString(1, client.getNom());
@@ -62,7 +67,9 @@ public class AccesBD {
 		}
 		catch(Exception ex) {
 			System.out.println(ex.getMessage());
+			message = new String("echec");
 		}
+		return message;
 	}
 
 	public ArrayList<Client> listerClients() {
@@ -84,19 +91,60 @@ public class AccesBD {
 		return listeClients;
 	}
 
-	public void creerCompte(Compte compte) {
+	public String creerCompte(Compte compte) {
+		String message = new String("succes");
 		try {
 			st = con.prepareStatement("insert into compte(numero, libelle, sens, solde, numero_client) values(?, ?, ?, ?, ?)");
 			st.setString(1, compte.getNumero());
 			st.setString(2, compte.getLibelle());
-			st.setString(3, compte.getSens());
-			st.setDouble(4, compte.getSolde());
+			st.setString(3, this.sensDefaut);
+			st.setDouble(4, this.soldeDefaut);
 			st.setInt(5, compte.getNumeroClient());
 			st.executeUpdate();
 		}
 		catch(Exception ex) {
 			System.out.println(ex.getMessage());
+			message = new String("echec");
 		}
+		return message;
+	}
+
+	public Compte recupererCompteParNumero(String string) {
+		Compte compte = new Compte();
+		try {
+			st = con.prepareStatement("select * from compte where numero='" + string + "'");
+			rs = st.executeQuery();
+			if(rs.next()) {
+				compte.setNumero(rs.getString("numero"));
+				compte.setLibelle(rs.getString("libelle"));
+				compte.setSens(rs.getString("sens"));
+				compte.setSolde(rs.getDouble("solde"));   
+				compte.setNumeroClient(rs.getInt("numero_client"));
+			}
+		}
+		catch(Exception ex) {
+			System.out.println(ex.getMessage());
+		}
+		return compte;
+	}
+
+	public Compte recupererCompteParLibelle(String libelle) {
+		Compte compte = new Compte();
+		try {
+			st = con.prepareStatement("select * from compte where libelle='" + libelle + "'");
+			rs = st.executeQuery();
+			if(rs.next()) {
+				compte.setNumero(rs.getString("numero"));
+				compte.setLibelle(rs.getString("libelle"));
+				compte.setSens(rs.getString("sens"));
+				compte.setSolde(rs.getDouble("solde"));   
+				compte.setNumeroClient(rs.getInt("numero_client"));
+			}
+		}
+		catch(Exception ex) {
+			System.out.println(ex.getMessage());
+		}
+		return compte;
 	}
 
 	public ArrayList<Compte> listerComptes() {
@@ -107,9 +155,9 @@ public class AccesBD {
 			while(rs.next()) {
 				Compte compte = new Compte();
 				compte.setNumero(rs.getString("numero"));
-				compte.setLibelle(rs.getString("libelle"));   
+				compte.setLibelle(rs.getString("libelle"));
 				compte.setSens(rs.getString("sens"));
-				compte.setSolde(rs.getDouble("solde"));   
+				compte.setSolde(rs.getDouble("solde"));
 				compte.setNumeroClient(rs.getInt("numero_client"));
 				listeComptes.add(compte);
 			}
@@ -141,10 +189,12 @@ public class AccesBD {
 		return listeComptesClient;
 	}
 
-	public ArrayList<Operation> afficherReleveCompte(String numeroCompte) {
+	public ArrayList<Operation> afficherReleveCompte(String libelleCompte) {
+		Compte compte = new Compte();
+		compte = recupererCompteParLibelle(libelleCompte);
 		ArrayList <Operation> listeOperations = new ArrayList <Operation>();
 		try {
-			st = con.prepareStatement("select * from operation where numero_compte=" + "'" + numeroCompte + "'");
+			st = con.prepareStatement("select * from operation where numero_compte='" + compte.getNumero() + "'");
 			rs = st.executeQuery();
 			while(rs.next()) {
 				Operation operation = new Operation();
@@ -163,19 +213,38 @@ public class AccesBD {
 		return listeOperations;
 	}
 
-	public void passerOperation(Operation operation)	{
-		try {
-			st = con.prepareStatement("insert into operation(libelle, date_operation, sens, montant, numero_compte) values(?, ?, ?, ?, ?)");
-			st.setString(1, operation.getLibelle());
-			st.setString(2, operation.getDateOperation());
-			st.setString(3, operation.getSens());
-			st.setDouble(4, operation.getMontant());
-			st.setString(5, operation.getNumeroCompte());
-			st.executeUpdate();
+	public String passerOperation(Operation operation) {
+		String message = new String("succes");
+		Compte compte = new Compte();
+		compte = recupererCompteParNumero(operation.getNumeroCompte());
+		if(compte.getNumero().equals("") || operation.getMontant() < 0) {
+			message = new String("echec");
 		}
-		catch(Exception ex) {
-			System.out.println(ex.getMessage());
+		else {
+			try {
+				st = con.prepareStatement("insert into operation(libelle, date_operation, sens, montant, numero_compte) values(?, ?, ?, ?, ?)");
+				st.setString(1, operation.getLibelle());
+				st.setString(2, operation.getDateOperation());
+				st.setString(3, operation.getSens());
+				st.setDouble(4, operation.getMontant());
+				st.setString(5, operation.getNumeroCompte());
+				st.executeUpdate();
+				// Mise à jour du compte
+				double nouveauSolde = (operation.getSens().equals("CR")) ? (compte.getSolde() + operation.getMontant()) : (compte.getSolde() - operation.getMontant());
+				String nouveauSens = (nouveauSolde > 0) ? new String("CR") : new String("DB");
+				nouveauSolde = Math.abs(nouveauSolde);
+				st = con.prepareStatement("update compte set solde=?, sens=? where numero=?");
+				st.setDouble(1,  nouveauSolde);
+				st.setString(2, nouveauSens);
+				st.setString(3, operation.getNumeroCompte());
+				st.executeUpdate();
+			}
+			catch(Exception ex) {
+				System.out.println(ex.getMessage());
+				message = new String("echec");
+			}
 		}
+		return message;
 	}
 
 }

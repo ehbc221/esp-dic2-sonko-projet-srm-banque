@@ -24,7 +24,7 @@ public class AfficherReleveCompteRechercherCompte extends JFrame implements Acti
 
 	public AfficherReleveCompteRechercherCompte() {
 
-		lRecherche = new JLabel("Entrer le numero du compte:");
+		lRecherche = new JLabel("Entrer le libelle du compte du client:");
 		chRecherche = new JTextField();		
 		Connection con = null;
 		Statement ps = null;
@@ -67,10 +67,10 @@ public class AfficherReleveCompteRechercherCompte extends JFrame implements Acti
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == bValider) {
 			try {
-				String numero = chRecherche.getText();
+				String libelle = chRecherche.getText();
 				oos.writeObject("afficherReleveCompte");	
 				oos.flush();
-				oos.writeObject(numero);
+				oos.writeObject(libelle);
 				oos.flush();
 				ArrayList<Operation> listeOperations = (ArrayList<Operation>)ois.readObject();
 				new AfficherReleveCompte(listeOperations);

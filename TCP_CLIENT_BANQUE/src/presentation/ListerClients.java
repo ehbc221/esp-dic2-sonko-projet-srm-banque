@@ -37,7 +37,7 @@ public class ListerClients extends JFrame implements ActionListener {
 
 		int ligne=0;
 		for (Client client : listeClients) {
-			modele.addRow( new Object[0]);
+			modele.addRow(new Object[0]);
 			modele.setValueAt(client.getNumero(), ligne, 0);
 			modele.setValueAt(client.getNom(), ligne, 1);
 			modele.setValueAt(client.getPrenom(), ligne, 2);

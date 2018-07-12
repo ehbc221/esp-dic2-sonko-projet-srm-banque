@@ -81,7 +81,9 @@ public class ApplicationServeur extends JFrame implements ActionListener {
 
 					if (mode.equals("creerAgence")) {
 						Agence agence = (Agence) ois.readObject();
-						bd.creerAgence(agence);
+						String message = bd.creerAgence(agence);
+						oos.writeObject(message);
+						oos.flush();
 					}
 
 					else if (mode.equals("listerAgences")) {
@@ -93,7 +95,9 @@ public class ApplicationServeur extends JFrame implements ActionListener {
 
 					else if(mode.equals("creerClient")) {
 						Client c = (Client)ois.readObject();
-						bd.creerClient(c);
+						String message = bd.creerClient(c);
+						oos.writeObject(message);
+						oos.flush();
 					}
 
 					else if(mode.equals("listerClients")) {
@@ -105,12 +109,14 @@ public class ApplicationServeur extends JFrame implements ActionListener {
 
 					else if(mode.equals("creerCompte")) {
 						Compte compte = (Compte) ois.readObject();
-						bd.creerCompte(compte);
+						String message = bd.creerCompte(compte);
+						oos.writeObject(message);
+						oos.flush();
 					}
 
 					else if(mode.equals("listerComptes")) {
 						ArrayList<Compte> listeComptes = new ArrayList<Compte>();
-						listeComptes = bd.listerComptes(); 
+						listeComptes = bd.listerComptes();
 						oos.writeObject(listeComptes);
 						oos.flush();
 					}
@@ -125,15 +131,17 @@ public class ApplicationServeur extends JFrame implements ActionListener {
 
 					else if(mode.equals("afficherReleveCompte")) {
 						ArrayList<Operation> listeOperations = new ArrayList<Operation>();
-						String numeroCompte = (String)ois.readObject();
-						listeOperations = bd.afficherReleveCompte(numeroCompte); 
+						String libelle = (String)ois.readObject();
+						listeOperations = bd.afficherReleveCompte(libelle); 
 						oos.writeObject(listeOperations);
 						oos.flush();
 					}
 
 					else if(mode.equals("passerOperation")) {
 						Operation operation = (Operation) ois.readObject();
-						bd.passerOperation(operation);
+						String message = bd.passerOperation(operation);
+						oos.writeObject(message);
+						oos.flush();
 					}
 
 					else if (mode.equals("fin")) {

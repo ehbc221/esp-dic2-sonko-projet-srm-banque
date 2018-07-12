@@ -57,7 +57,6 @@ public class ListerAgences extends JFrame implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == bQuitter) {
 			dispose();
-			System.exit(0);
 		}
 	}
 

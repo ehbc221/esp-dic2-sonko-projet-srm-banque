@@ -7,6 +7,7 @@ import java.net.*;
 import java.sql.*;
 import java.util.*;
 import javax.swing.*;
+import javax.swing.JOptionPane;
 
 import entities.*;
 
@@ -14,10 +15,10 @@ public class CreerCompte extends JFrame implements ActionListener {
 
 	private ArrayList<Client> listeClients = new ArrayList<Client>();
 	private JButton bAjouter, bQuitter;
-	private JComboBox<String> listeSens, chListeClients;
-	private JLabel lNumero, lLibelle, lClient, lSolde, lSens;
+	private JComboBox<String> chListeClients;
+	private JLabel lNumero, lLibelle, lClient;
 	private JPanel panel1, panel2;
-	private JTextField chNumero, chLibelle, chSolde;
+	private JTextField chNumero, chLibelle;
 
 	private Socket socket;
 	ObjectOutputStream oos;
@@ -32,17 +33,12 @@ public class CreerCompte extends JFrame implements ActionListener {
 		lNumero = new JLabel("Numero Compte:");
 		lLibelle = new JLabel("Libelle Compte:");
 		lClient = new JLabel("Client Compte:");
-		lSolde = new JLabel("Solde Compte:");
-		lSens = new JLabel("Sens Compte:");
 		chNumero = new JTextField();
 		chLibelle = new JTextField();
 		chListeClients = new JComboBox<String>();
-		chSolde = new JTextField();
-		listeSens = new JComboBox<String>();
 		bAjouter = new JButton("Enregistrer");
 		bQuitter = new JButton("Quitter");
 		String operation[] = {"Débiteur", "Créditeur"};
-		listeSens = new JComboBox<String>(operation);
 		panel1 = new JPanel();
 		panel2 = new JPanel();
 
@@ -57,10 +53,6 @@ public class CreerCompte extends JFrame implements ActionListener {
 		panel1.add(chLibelle);
 		panel1.add(lClient);
 		panel1.add(chListeClients);
-		panel1.add(lSens);
-		panel1.add(listeSens);
-		panel1.add(lSolde);
-		panel1.add(chSolde);
 		panel2.add(bAjouter);
 		panel2.add(bQuitter);
 
@@ -91,24 +83,23 @@ public class CreerCompte extends JFrame implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == bAjouter) {
 			Compte compte;
+			String message = new String();
 			try {
 				oos.writeObject("creerCompte");
 				oos.flush();
 				String numero = chNumero.getText();
 				String libelle = chLibelle.getText();
-				String sens = listeSens.getSelectedItem().toString();
-				int solde = Integer.parseInt(chSolde.getText());
 				compte = new Compte();
 				compte.setNumero(numero);
 				compte.setLibelle(libelle);
-				compte.setSolde(solde);
-				compte.setSens(sens.equals("Débiter")? "DB" : "CR");
 				compte.setNumeroClient(recupererNumeroClient(nomClient));
 				oos.writeObject(compte);
 				oos.flush();
+				message = ois.readObject().toString();
+				JOptionPane.showMessageDialog(null, message.equals("succes") ? "Compte créé avec succès!" : "Echec de la création du compte!");
 				chNumero.setText("");
 				chLibelle.setText("");
-				chSolde.setText("");
+				chListeClients.setSelectedIndex(0);
 			}
 			catch(Exception ex) {
 				System.out.println(ex.getMessage());
